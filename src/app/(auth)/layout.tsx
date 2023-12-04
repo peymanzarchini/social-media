@@ -6,7 +6,7 @@ import "../globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Threads",
+  title: "Social-Media",
   description: "A Next.js 14 Meta Threads Application",
 };
 
