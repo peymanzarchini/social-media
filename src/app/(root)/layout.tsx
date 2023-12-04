@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <html lang="en">
         <body className={inter.className} suppressHydrationWarning={true}>
           <Topbar />
-          <main>
+          <main className="flex">
             <LeftSidebar />
             <section className="main-container">
               <div className="w-full max-w-4xl">{children}</div>
