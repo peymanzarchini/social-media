@@ -1,13 +1,15 @@
 "use client";
 
 import * as z from "zod";
+import Image from "next/image";
 import { useForm, Controller } from "react-hook-form";
 import { userValidationSchema } from "@/utils/validation/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { isBase64Image } from "@/utils";
 import { useUploadThing } from "@/utils/uploadthing";
+import { updateUser } from "@/utils/actions/user.actions";
+import { usePathname, useRouter } from "next/navigation";
 
 interface ProfileProps {
   user: {
@@ -24,6 +26,9 @@ interface ProfileProps {
 const AccountProfile = ({ user, btnTitle }: ProfileProps) => {
   const [files, setFiles] = useState<File[]>([]);
   const { startUpload } = useUploadThing("media");
+
+  const router = useRouter();
+  const pathname = usePathname();
 
   const {
     control,
@@ -49,6 +54,21 @@ const AccountProfile = ({ user, btnTitle }: ProfileProps) => {
       if (imgRes && imgRes[0].url) {
         values.profile_photo = imgRes[0].url;
       }
+    }
+
+    await updateUser({
+      userId: user.id,
+      username: values.username,
+      name: values.name,
+      bio: values.bio,
+      image: values.profile_photo,
+      path: pathname,
+    });
+
+    if (pathname === "/profile/edit") {
+      router.back();
+    } else {
+      router.push("/");
     }
   };
 
@@ -117,7 +137,7 @@ const AccountProfile = ({ user, btnTitle }: ProfileProps) => {
           </div>
         )}
       />
-      {errors.name && <p className="text-red-500">{`${errors.name}`}</p>}
+      {errors.name && <p className="text-red-500">{`${errors.name.message}`}</p>}
 
       <Controller
         control={control}
@@ -132,7 +152,7 @@ const AccountProfile = ({ user, btnTitle }: ProfileProps) => {
         )}
       />
 
-      {errors.username && <p className="text-red-500">{`${errors.username}`}</p>}
+      {errors.username && <p className="text-red-500">{`${errors.username.message}`}</p>}
 
       <Controller
         control={control}
@@ -147,7 +167,7 @@ const AccountProfile = ({ user, btnTitle }: ProfileProps) => {
         )}
       />
 
-      {errors.bio && <p className="text-red-500">{`${errors.bio}`}</p>}
+      {errors.bio && <p className="text-red-500">{`${errors.bio.message}`}</p>}
 
       <button type="submit" className="bg-blue p-3 text-white rounded-lg">
         {btnTitle}
