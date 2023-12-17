@@ -4,11 +4,13 @@ import { sidebarLinks } from "@/constants";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { SignOutButton, SignedIn } from "@clerk/nextjs";
+import { SignOutButton, SignedIn, useAuth } from "@clerk/nextjs";
 
 const LeftSidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
+
+  const { userId } = useAuth();
 
   const handleChangeActiveElement = (route: string) => {
     if (route === pathname) {
@@ -19,16 +21,19 @@ const LeftSidebar = () => {
   return (
     <section className="custom-scrollbar leftsidebar">
       <div className="flex w-full flex-1 flex-col gap-6 px-5">
-        {sidebarLinks.map((link) => (
-          <Link
-            href={link.route}
-            key={link.label}
-            className={`leftsidebar_link ${handleChangeActiveElement(link.route) && "bg-blue"}`}
-          >
-            <Image src={link.imgURL} alt={link.label} width={24} height={24} />
-            <p className="text-light-1 max-lg:hidden">{link.label}</p>
-          </Link>
-        ))}
+        {sidebarLinks.map((link) => {
+          if (link.route === "/profile") link.route = `${link.route}/${userId}`;
+          return (
+            <Link
+              href={link.route}
+              key={link.label}
+              className={`leftsidebar_link ${handleChangeActiveElement(link.route) && "bg-blue"}`}
+            >
+              <Image src={link.imgURL} alt={link.label} width={24} height={24} />
+              <p className="text-light-1 max-lg:hidden">{link.label}</p>
+            </Link>
+          );
+        })}
       </div>
       <div className="mt-10 px-6">
         <SignedIn>
