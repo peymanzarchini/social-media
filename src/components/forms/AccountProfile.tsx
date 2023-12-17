@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import Image from "next/image";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { userValidationSchema } from "@/utils/validation/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChangeEvent, useState } from "react";
@@ -10,6 +10,18 @@ import { isBase64Image } from "@/utils";
 import { useUploadThing } from "@/utils/uploadthing";
 import { updateUser } from "@/utils/actions/user.actions";
 import { usePathname, useRouter } from "next/navigation";
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ProfileProps {
   user: {
@@ -30,11 +42,7 @@ const AccountProfile = ({ user, btnTitle }: ProfileProps) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<z.infer<typeof userValidationSchema>>({
+  const form = useForm<z.infer<typeof userValidationSchema>>({
     resolver: zodResolver(userValidationSchema),
     defaultValues: {
       profile_photo: user?.image ? user.image : "",
@@ -48,21 +56,21 @@ const AccountProfile = ({ user, btnTitle }: ProfileProps) => {
     const blob = values.profile_photo;
 
     const hasImageChanged = isBase64Image(blob);
-
     if (hasImageChanged) {
       const imgRes = await startUpload(files);
+
       if (imgRes && imgRes[0].url) {
         values.profile_photo = imgRes[0].url;
       }
     }
 
     await updateUser({
-      userId: user.id,
-      username: values.username,
       name: values.name,
+      path: pathname,
+      username: values.username,
+      userId: user.id,
       bio: values.bio,
       image: values.profile_photo,
-      path: pathname,
     });
 
     if (pathname === "/profile/edit") {
@@ -93,86 +101,93 @@ const AccountProfile = ({ user, btnTitle }: ProfileProps) => {
   };
 
   return (
-    <form className="flex flex-col justify-start gap-10" onSubmit={handleSubmit(onSubmit)}>
-      <Controller
-        control={control}
-        name="profile_photo"
-        render={({ field }) => (
-          <div className="flex items-center gap-4">
-            <div className="account-form_image-label">
-              {field.value ? (
-                <Image
-                  src={field.value}
-                  alt="profile_icon"
-                  width={96}
-                  height={96}
-                  priority
-                  className="rounded-full object-contain"
+    <Form {...form}>
+      <form className="flex flex-col justify-start gap-10" onSubmit={form.handleSubmit(onSubmit)}>
+        <FormField
+          control={form.control}
+          name="profile_photo"
+          render={({ field }) => (
+            <FormItem className="flex items-center gap-4">
+              <FormLabel className="account-form_image-label">
+                {field.value ? (
+                  <Image
+                    src={field.value}
+                    alt="profile_icon"
+                    width={96}
+                    height={96}
+                    priority
+                    className="rounded-full object-contain"
+                  />
+                ) : (
+                  <Image
+                    src="/assets/profile.svg"
+                    alt="profile_icon"
+                    width={24}
+                    height={24}
+                    className="object-contain"
+                  />
+                )}
+              </FormLabel>
+              <FormControl className="flex-1 text-base-semibold text-gray-200">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  placeholder="Add profile photo"
+                  className="account-form_image-input"
+                  onChange={(e) => handleImage(e, field.onChange)}
                 />
-              ) : (
-                <Image src={"/assets/profile.svg"} alt="profile_icon" width={24} height={24} />
-              )}
-            </div>
-            <div className="flex-1 text-base-semibold text-gray-200">
-              <input
-                type="file"
-                accept="image/*"
-                placeholder="Add profile photo"
-                className="account-form_image-input"
-                onChange={(e) => handleImage(e, field.onChange)}
-              />
-            </div>
-          </div>
-        )}
-      />
-      <Controller
-        control={control}
-        name="name"
-        render={({ field }) => (
-          <div className="flex w-full flex-col gap-3">
-            <div className="text-base-semibold text-light-2">Name</div>
-            <div>
-              <input type="text" className="account-form_input no-focus w-full" {...field} />
-            </div>
-          </div>
-        )}
-      />
-      {errors.name && <p className="text-red-500">{`${errors.name.message}`}</p>}
+              </FormControl>
+            </FormItem>
+          )}
+        />
 
-      <Controller
-        control={control}
-        name="username"
-        render={({ field }) => (
-          <div className="flex w-full flex-col gap-3">
-            <div className="text-base-semibold text-light-2">Username</div>
-            <div>
-              <input type="text" className="account-form_input no-focus w-full" {...field} />
-            </div>
-          </div>
-        )}
-      />
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem className="flex w-full flex-col gap-3">
+              <FormLabel className="text-base-semibold text-light-2">Name</FormLabel>
+              <FormControl>
+                <Input type="text" className="account-form_input no-focus" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      {errors.username && <p className="text-red-500">{`${errors.username.message}`}</p>}
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem className="flex w-full flex-col gap-3">
+              <FormLabel className="text-base-semibold text-light-2">Username</FormLabel>
+              <FormControl>
+                <Input type="text" className="account-form_input no-focus" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <Controller
-        control={control}
-        name="bio"
-        render={({ field }) => (
-          <div className="flex w-full flex-col gap-3">
-            <div className="text-base-semibold text-light-2">Bio</div>
-            <div>
-              <textarea rows={10} className="account-form_input no-focus w-full" {...field} />
-            </div>
-          </div>
-        )}
-      />
+        <FormField
+          control={form.control}
+          name="bio"
+          render={({ field }) => (
+            <FormItem className="flex w-full flex-col gap-3">
+              <FormLabel className="text-base-semibold text-light-2">Bio</FormLabel>
+              <FormControl>
+                <Textarea rows={10} className="account-form_input no-focus" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      {errors.bio && <p className="text-red-500">{`${errors.bio.message}`}</p>}
-
-      <button type="submit" className="bg-blue p-3 text-white rounded-lg">
-        {btnTitle}
-      </button>
-    </form>
+        <Button type="submit" className="bg-blue">
+          {btnTitle}
+        </Button>
+      </form>
+    </Form>
   );
 };
 
