@@ -3,12 +3,12 @@
 import * as z from "zod";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
-import { userValidationSchema } from "@/utils/validation/user";
+import { userValidationSchema } from "@/lib/validation/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChangeEvent, useState } from "react";
-import { isBase64Image } from "@/utils";
-import { useUploadThing } from "@/utils/uploadthing";
-import { updateUser } from "@/utils/actions/user.actions";
+import { isBase64Image } from "@/lib";
+import { useUploadThing } from "@/lib/uploadthing";
+import { updateUser } from "@/lib/actions/user.actions";
 import { usePathname, useRouter } from "next/navigation";
 
 import {

@@ -5,8 +5,8 @@ import Image from "next/image";
 import { Controller, useForm } from "react-hook-form";
 import { usePathname } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CommentValidation } from "@/utils/validation/thread";
-import { addCommentToThread } from "@/utils/actions/thread.actions";
+import { CommentValidation } from "@/lib/validation/thread";
+import { addCommentToThread } from "@/lib/actions/thread.actions";
 
 interface Props {
   threadId: string;

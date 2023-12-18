@@ -1,7 +1,7 @@
 "use client";
 
-import { createThread } from "@/utils/actions/thread.actions";
-import { ThreadValidation } from "@/utils/validation/thread";
+import { createThread } from "@/lib/actions/thread.actions";
+import { ThreadValidation } from "@/lib/validation/thread";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
