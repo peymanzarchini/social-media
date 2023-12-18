@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { userValidationSchema } from "@/lib/validation/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChangeEvent, useState } from "react";
-import { isBase64Image } from "@/lib";
+import { isBase64Image } from "@/lib/";
 import { useUploadThing } from "@/lib/uploadthing";
 import { updateUser } from "@/lib/actions/user.actions";
 import { usePathname, useRouter } from "next/navigation";
@@ -59,8 +59,8 @@ const AccountProfile = ({ user, btnTitle }: ProfileProps) => {
     if (hasImageChanged) {
       const imgRes = await startUpload(files);
 
-      if (imgRes && imgRes[0].url) {
-        values.profile_photo = imgRes[0].url;
+      if (imgRes && imgRes[0]?.url) {
+        values.profile_photo = imgRes[0]?.url;
       }
     }
 
