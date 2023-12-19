@@ -1,25 +1,36 @@
 "use client";
 
-import { createThread } from "@/lib/actions/thread.actions";
-import { ThreadValidation } from "@/lib/validation/thread";
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { useOrganization } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+
+import { ThreadValidation } from "@/lib/validation/thread";
+import { createThread } from "@/lib/actions/thread.actions";
 
 interface Props {
   userId: string;
 }
 
-const PostThread = ({ userId }: Props) => {
-  const pathname = usePathname();
+function PostThread({ userId }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
 
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<z.infer<typeof ThreadValidation>>({
+  const { organization } = useOrganization();
+
+  const form = useForm<z.infer<typeof ThreadValidation>>({
     resolver: zodResolver(ThreadValidation),
     defaultValues: {
       thread: "",
@@ -31,7 +42,7 @@ const PostThread = ({ userId }: Props) => {
     await createThread({
       text: values.thread,
       author: userId,
-      communityId: null,
+      communityId: organization ? organization.id : null,
       path: pathname,
     });
 
@@ -39,27 +50,31 @@ const PostThread = ({ userId }: Props) => {
   };
 
   return (
-    <form className="flex flex-col justify-start gap-10" onSubmit={handleSubmit(onSubmit)}>
-      <Controller
-        control={control}
-        name="thread"
-        render={({ field }) => (
-          <div className="flex w-full flex-col gap-3">
-            <h1 className="text-base-semibold text-light-2 py-2">Content</h1>
-            <div className="no-focus border border-dark-4 bg-dark-3 text-light-1">
-              <textarea rows={15} {...field} className="account-form_input no-focus w-full" />
-            </div>
-          </div>
-        )}
-      />
+    <Form {...form}>
+      <form
+        className="mt-10 flex flex-col justify-start gap-10"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <FormField
+          control={form.control}
+          name="thread"
+          render={({ field }) => (
+            <FormItem className="flex w-full flex-col gap-3">
+              <FormLabel className="text-base-semibold text-light-2">Content</FormLabel>
+              <FormControl className="no-focus border border-dark-4 bg-dark-3 text-light-1">
+                <Textarea rows={15} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      {errors.thread && <p className="text-red-500">{`${errors.thread.message}`}</p>}
-
-      <button type="submit" className="bg-blue p-3 text-white rounded-lg">
-        Post Thread
-      </button>
-    </form>
+        <Button type="submit" className="bg-blue">
+          Post Thread
+        </Button>
+      </form>
+    </Form>
   );
-};
+}
 
 export default PostThread;

@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { userValidationSchema } from "@/lib/validation/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChangeEvent, useState } from "react";
-import { isBase64Image } from "@/lib/";
+import { isBase64Image } from "@/lib/utils";
 import { useUploadThing } from "@/lib/uploadthing";
 import { updateUser } from "@/lib/actions/user.actions";
 import { usePathname, useRouter } from "next/navigation";
